@@ -8,15 +8,16 @@ import { randomColor } from './util';
 // Laziness
 const FONT_SIZE = 20;
 const TEXT_LEFT_PADDING = 20;
+const TEXT_HIDDEN_LABEL = '???';
 
 const CANVAS_PADDING = 20;
 
 const CIRCLE_DEGREES = 360;
-
-const MAX_SPINS = 5;
+const MIN_SPINS = 1;
+const MAX_SPINS = 7;
 const MAX_SPIN_DURATION_MILLIS = 4000;
-const MIN_SPIN_DURATION_MILLIS = 1500;
 
+const MIN_SPIN_DURATION_MILLIS = 1500;
 const buildWedges = (wedges, radius) => {
     if (!wedges || wedges.length === 0) {
         return null;
@@ -39,7 +40,7 @@ const buildWedges = (wedges, radius) => {
                 fill={randomColor(idx, wedges.length)}
             />
             <Text
-                text={wedge.label}
+                text={wedge.hidden ? TEXT_HIDDEN_LABEL : wedge.label}
                 rotation={(angle + CIRCLE_DEGREES) / 2}
                 offsetX={radius - TEXT_LEFT_PADDING}
                 offsetY={FONT_SIZE / 2}
@@ -78,13 +79,13 @@ export const Wheel = ({size = 500, wedges = [], onWinner}) => {
 
     const wedgeDisplays = wedgeInfo.map(w => w.component);
     const winAngles = wedgeInfo.map(w => w.winAngle);
-    winAngles.sort((a, b) => b.angle - a.angle);
+    winAngles.sort((a, b) => a.angle - b.angle);
 
     useEffect(() => {
         if (!isSpinning) return;
 
         // Randomly decide how far to spin (number of spins plus portion of one last spin)
-        const numSpins = Math.round(Math.random() * MAX_SPINS) + 1;
+        const numSpins = Math.round(Math.random() * (MAX_SPINS - MIN_SPINS)) + MIN_SPINS;
         const netOffset = Math.random() * CIRCLE_DEGREES;
         const netRotation = numSpins * CIRCLE_DEGREES + netOffset;
         // Randomly decide how long to spin
@@ -110,10 +111,10 @@ export const Wheel = ({size = 500, wedges = [], onWinner}) => {
             return;
         }
         const winningAngle = CIRCLE_DEGREES - (rotation + CIRCLE_DEGREES / 2) % CIRCLE_DEGREES;
-        for (let i = 0; i < winAngles.length; i++) {
+        for (let i = winAngles.length - 1; i >= 0; i--) {
             const potentialWinner = winAngles[i];
             if (potentialWinner.angle <= winningAngle) {
-                onWinner && onWinner(potentialWinner.wedge);
+                onWinner && onWinner(i);
                 return;
             }
         }
