@@ -109,7 +109,7 @@ export const Wheel = ({size = 500, wedges = [], onWinner}) => {
         if (isMount) {
             return;
         }
-        const winningAngle = (rotation + CIRCLE_DEGREES / 2) % CIRCLE_DEGREES;
+        const winningAngle = CIRCLE_DEGREES - (rotation + CIRCLE_DEGREES / 2) % CIRCLE_DEGREES;
         for (let i = 0; i < winAngles.length; i++) {
             const potentialWinner = winAngles[i];
             if (potentialWinner.angle <= winningAngle) {
