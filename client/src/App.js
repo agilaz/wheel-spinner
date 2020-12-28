@@ -1,28 +1,19 @@
 import './App.css';
-import { Wheel } from './Wheel';
-import { useState } from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import AdminPage from './pages/AdminPage';
 
-const INITIAL_WEDGES = [...Array(10).keys()].map((i) => ({weight: i + 1, label: `Option ${i + 1}`, hidden: true}));
-console.log(JSON.stringify(INITIAL_WEDGES));
-function App() {
-    const [wedges, setWedges] = useState(INITIAL_WEDGES);
-    const [winner, setWinner] = useState(null);
-
-    const handleWinner = (winnerIndex) => {
-        setWinner(wedges[winnerIndex]);
-        const newWedges = [...wedges];
-        newWedges[winnerIndex] = {...newWedges[winnerIndex], hidden: false};
-        setWedges(newWedges);
-    };
-
+const App = () => {
     return (
-        <div className="App">
-            <p>{winner && winner.label}</p>
-            Wheel:
-            <br />
-            <Wheel size={500} wedges={wedges} onWinner={handleWinner} />
+        <div className='App'>
+            <Router>
+                <Switch>
+                    <Route path={'/'} exact component={HomePage} />
+                    <Route path={'/wheels/admin/:id/:hash'} component={AdminPage} />
+                </Switch>
+            </Router>
         </div>
-    );
+    )
 }
 
 export default App;

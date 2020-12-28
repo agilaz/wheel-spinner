@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Group, Layer, Stage, Text, Wedge } from 'react-konva';
 import { Button } from 'react-bootstrap';
 import Konva from 'konva';
-import { useIsMount } from './util';
-import { randomColor } from './util';
+import { useIsMount } from '../util';
+import { randomColor } from '../util';
 
 // Laziness
 const FONT_SIZE = 20;
