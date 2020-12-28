@@ -97,7 +97,7 @@ const WheelForm = ({initialState, includePassword, title, show, handleClose, han
                         Cancel
                     </Button>
                     <Button variant="primary" onClick={submitChanges}>
-                        Save Changes
+                        Save
                     </Button>
                 </Modal.Footer>
             </Form>

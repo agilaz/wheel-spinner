@@ -7,7 +7,16 @@ export const checkAdmin = (id, password) => axios.post(`/api/wheels/check/${id}?
 
 
 // Util functions
-export const getErrorMessage = err => err && err.message || JSON.stringify(err);
+export const getErrorMessage = err => {
+    if (err && err.response && err.response.data) {
+        return JSON.stringify(err.response.data);
+    }
+    if (err && err.message) {
+        return err.message;
+    }
+
+    return JSON.stringify(err);
+}
 
 export default {
     createWheel,

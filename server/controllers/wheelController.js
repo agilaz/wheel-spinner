@@ -21,6 +21,14 @@ export const createWheel = (req, res) => {
         return res.status(400).json({success: false, error: 'Must set password'});
     }
 
+    if (!body.wedges || !body.wedges.length) {
+        return res.status(400).json({success: false, error: 'Must set wedges'});
+    }
+
+    if (body.wedges.some(wedge => !wedge.weight || wedge.weight <= 0)) {
+        return res.status(400).json({success: false, error: 'Wedges must have positive weights'});
+    }
+
     const wheel = new Wheel({
         ownerHash: bcrypt.hashSync(body.password, SALT_ROUNDS),
         wedges: body.wedges
@@ -50,6 +58,16 @@ export const updateWheel = async (req, res) => {
 
     if (!req.query.password) {
         return res.status(400).json({success: false, error: 'Must provide password'});
+    }
+
+    if (body.wedges) {
+        if (!body.wedges.length) {
+            return res.status(400).json({success: false, error: 'Must set wedges'});
+        }
+
+        if (body.wedges.some(wedge => !wedge.weight || wedge.weight <= 0)) {
+            return res.status(400).json({success: false, error: 'Wedges must have positive weights'});
+        }
     }
 
     const validPassword = await isMatchingPassword(req.params.id, req.query.password)

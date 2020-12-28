@@ -9,7 +9,7 @@ const FONT_SIZE = 20;
 const TEXT_LEFT_PADDING = 20;
 const TEXT_HIDDEN_LABEL = '???';
 
-const CANVAS_PADDING = 20;
+const CANVAS_PADDING = 0.05;
 
 
 const buildWedges = (wedges, radius) => {
@@ -66,7 +66,7 @@ export const Wheel = ({size = 500, wedges = [], spin, onSpinEnd, initialRotation
 
     const wheelRef = useRef(null);
 
-    const radius = size / 2 - CANVAS_PADDING;
+    const radius = size / 2 - (CANVAS_PADDING * size);
 
     const wedgeInfo = buildWedges(wedges, radius);
 

@@ -71,7 +71,7 @@ const AdminPage = ({match}) => {
                     checkAuth();
                 }}>
                     {!!error && <p>Incorrect password. Try again.</p>}
-                    <Form.Label>Enter the Password for this wheel:</Form.Label>
+                    <Form.Label>Enter the password for this wheel:</Form.Label>
                     <Form.Control type='password' value={password} onChange={(evt) => setPassword(evt.target.value)} />
                     <Button variant='primary' onClick={() => checkAuth()}>Submit</Button>
                 </Form>
@@ -94,7 +94,8 @@ const AdminPage = ({match}) => {
     return (
         <div className="App">
             <p>{winner && winner.label}</p>
-            <Wheel size={500} wedges={wedges} onSpinEnd={handleSpinEnd} spin={spin} initialRotation={rotation} />
+            <p>{winner && winner.description}</p>
+            <Wheel size={700} wedges={wedges} onSpinEnd={handleSpinEnd} spin={spin} initialRotation={rotation} />
             <div style={{flexDirection: 'row'}}>
                 <Button variant={'primary'}
                         disabled={!!spin}
