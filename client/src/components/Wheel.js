@@ -1,23 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Group, Layer, Stage, Text, Wedge } from 'react-konva';
-import { Button } from 'react-bootstrap';
 import Konva from 'konva';
-import { useIsMount } from './util';
-import { randomColor } from './util';
+import { randomColor, useIsMount } from '../util';
+import { CIRCLE_DEGREES } from '../util/randomSpin';
 
 // Laziness
 const FONT_SIZE = 20;
 const TEXT_LEFT_PADDING = 20;
 const TEXT_HIDDEN_LABEL = '???';
 
-const CANVAS_PADDING = 20;
+const CANVAS_PADDING = 0.05;
 
-const CIRCLE_DEGREES = 360;
-const MIN_SPINS = 1;
-const MAX_SPINS = 7;
-const MAX_SPIN_DURATION_MILLIS = 4000;
 
-const MIN_SPIN_DURATION_MILLIS = 1500;
 const buildWedges = (wedges, radius) => {
     if (!wedges || wedges.length === 0) {
         return null;
@@ -66,14 +60,13 @@ const buildIndicator = (pageSize) => {
                   fill={'#000000'} />
 }
 
-export const Wheel = ({size = 500, wedges = [], onWinner}) => {
+export const Wheel = ({size = 500, wedges = [], spin, onSpinEnd, initialRotation}) => {
     const isMount = useIsMount();
-    const [isSpinning, setIsSpinning] = useState(false);
-    const [rotation, setRotation] = useState(0);
+    // const [rotation, setRotation] = useState(0);
 
     const wheelRef = useRef(null);
 
-    const radius = size / 2 - CANVAS_PADDING;
+    const radius = size / 2 - (CANVAS_PADDING * size);
 
     const wedgeInfo = buildWedges(wedges, radius);
 
@@ -82,43 +75,32 @@ export const Wheel = ({size = 500, wedges = [], onWinner}) => {
     winAngles.sort((a, b) => a.angle - b.angle);
 
     useEffect(() => {
-        if (!isSpinning) return;
+        if (!spin) return;
 
-        // Randomly decide how far to spin (number of spins plus portion of one last spin)
-        const numSpins = Math.round(Math.random() * (MAX_SPINS - MIN_SPINS)) + MIN_SPINS;
-        const netOffset = Math.random() * CIRCLE_DEGREES;
-        const netRotation = numSpins * CIRCLE_DEGREES + netOffset;
-        // Randomly decide how long to spin
-        const spinDurationMillis = Math.round(Math.random() * (MAX_SPIN_DURATION_MILLIS - MIN_SPIN_DURATION_MILLIS)) + MIN_SPIN_DURATION_MILLIS;
+        const finalRotation = initialRotation + spin.rotation;
         const tween = new Konva.Tween({
             node: wheelRef.current,
-            duration: spinDurationMillis / 1000,
+            duration: spin.duration / 1000,
             easing: Konva.Easings.EaseInOut,
-            rotation: rotation + netRotation
+            rotation: finalRotation
         });
         tween.play();
-        // setRotation(r => r + numSpins * CIRCLE_DEGREES + netOffset);
+
         setTimeout(() => {
             tween.finish();
             tween.destroy();
-            setIsSpinning(false);
-            setRotation((rotation + netRotation) % CIRCLE_DEGREES);
-        }, spinDurationMillis + 1);
-    }, [isSpinning, rotation]);
 
-    useEffect(() => {
-        if (isMount) {
-            return;
-        }
-        const winningAngle = CIRCLE_DEGREES - (rotation + CIRCLE_DEGREES / 2) % CIRCLE_DEGREES;
-        for (let i = winAngles.length - 1; i >= 0; i--) {
-            const potentialWinner = winAngles[i];
-            if (potentialWinner.angle <= winningAngle) {
-                onWinner && onWinner(i);
-                return;
+            const winningAngle = CIRCLE_DEGREES - (finalRotation + CIRCLE_DEGREES / 2) % CIRCLE_DEGREES;
+            for (let i = winAngles.length - 1; i >= 0; i--) {
+                const potentialWinner = winAngles[i];
+                if (potentialWinner.angle <= winningAngle) {
+                    onSpinEnd && onSpinEnd(i, finalRotation);
+                    return;
+                }
             }
-        }
-    }, [rotation]);
+        }, spin.duration + 1);
+    }, [spin]);
+
 
     return (
         <>
@@ -126,7 +108,7 @@ export const Wheel = ({size = 500, wedges = [], onWinner}) => {
                 <Stage width={size} height={size}>
                     <Layer>
                         <Group ref={wheelRef}
-                               rotation={rotation}
+                               rotation={initialRotation}
                                x={size / 2}
                                y={size / 2}
                                offsetX={radius}
@@ -137,12 +119,6 @@ export const Wheel = ({size = 500, wedges = [], onWinner}) => {
                     </Layer>
                 </Stage>
             </div>
-            <Button
-                variant={'primary'}
-                disabled={isSpinning}
-                onClick={() => setIsSpinning(true)}>
-                Spin
-            </Button>
         </>
     );
 }
