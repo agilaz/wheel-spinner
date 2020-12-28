@@ -34,6 +34,7 @@ const AdminPage = ({match}) => {
             .catch((err) => setError(getErrorMessage(err)));
     };
 
+    // On spin end, unhide the winner and update state/back end
     const handleSpinEnd = (winnerIndex, rotation) => {
         setSpin(null);
         setRotation(rotation);
@@ -59,17 +60,15 @@ const AdminPage = ({match}) => {
         setShowCopyToast(true);
     }
 
+    // If url changes, reload the wedges
     useEffect(() => {
-        if (wedges) {
-            return;
-        }
-
         API.getWheel(match.params.id)
             .then(resp => resp.data)
             .then(data => setWedges(data.wedges))
             .catch((err) => setError(getErrorMessage(err)));
     }, [match]);
 
+    // First view - not authenticated, so show password prompt
     if (!isAuthenticated) {
         return (
             <>
@@ -86,18 +85,21 @@ const AdminPage = ({match}) => {
         );
     }
 
+    // Error view - show error text
     if (error) {
         return (
             <p>{error}</p>
         );
     }
 
+    // Loading view - show loading text
     if (!wedges) {
         return (
             <p>Loading</p>
         );
     }
 
+    // Loaded view - show wheel and controls
     return (
         <div className="App">
             <p>{winner && winner.label}</p>

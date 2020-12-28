@@ -12,6 +12,7 @@ const UserPage = ({match}) => {
     const [winner, setWinner] = useState(null);
 
 
+    // On spin end, unhide the winner and update state (but not api)
     const handleSpinEnd = (winnerIndex, rotation) => {
         setSpin(null);
         setRotation(rotation);
@@ -21,29 +22,29 @@ const UserPage = ({match}) => {
         setWedges(newWedges);
     };
 
+    // If url changes, reload the wedges
     useEffect(() => {
-        if (wedges) {
-            return;
-        }
-
         API.getWheel(match.params.id)
             .then(resp => resp.data)
             .then(data => setWedges(data.wedges))
             .catch((err) => setError(getErrorMessage(err)));
     }, [match]);
 
+    // Error view - show error text
     if (error) {
         return (
             <p>{error}</p>
         );
     }
 
+    // Loading view - show loading text
     if (!wedges) {
         return (
             <p>Loading</p>
         );
     }
 
+    // Loaded view - show wheel and controls
     return (
         <div className="App">
             <p>{winner && winner.label}</p>

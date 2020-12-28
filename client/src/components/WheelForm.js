@@ -4,9 +4,12 @@ import { Button, Col, Form, Modal } from 'react-bootstrap';
 const EMPTY_WEDGE = {label: '', weight: 0, description: '', hidden: true};
 
 const WheelForm = ({initialState, includePassword, title, show, handleClose, handleSubmit}) => {
+    // Password only used on create
     const [password, setPassword] = useState((initialState && initialState.password) || '');
+    // Wedges used on create/update
     const [wedges, setWedges] = useState((initialState && initialState.wedges) || []);
 
+    // Refresh state if the initialState/includePassword props update
     useEffect(() => {
         if (includePassword && initialState) {
             setPassword(initialState.password || '');
