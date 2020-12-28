@@ -89,7 +89,7 @@ export const Wheel = ({size = 500, wedges = [], spin, onSpinEnd, initialRotation
         setTimeout(() => {
             tween.finish();
             tween.destroy();
-            // setRotation((rotation + spin.rotation) % CIRCLE_DEGREES);
+
             const winningAngle = CIRCLE_DEGREES - (finalRotation + CIRCLE_DEGREES / 2) % CIRCLE_DEGREES;
             for (let i = winAngles.length - 1; i >= 0; i--) {
                 const potentialWinner = winAngles[i];
@@ -101,19 +101,6 @@ export const Wheel = ({size = 500, wedges = [], spin, onSpinEnd, initialRotation
         }, spin.duration + 1);
     }, [spin]);
 
-    // useEffect(() => {
-    //     if (isMount) {
-    //         return;
-    //     }
-    //     const winningAngle = CIRCLE_DEGREES - (rotation + CIRCLE_DEGREES / 2) % CIRCLE_DEGREES;
-    //     for (let i = winAngles.length - 1; i >= 0; i--) {
-    //         const potentialWinner = winAngles[i];
-    //         if (potentialWinner.angle <= winningAngle) {
-    //             onSpinEnd && onSpinEnd(i);
-    //             return;
-    //         }
-    //     }
-    // }, [rotation]);
 
     return (
         <>

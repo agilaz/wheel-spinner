@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 export const createWheel = payload => axios.post('/api/wheels', payload);
-export const updateWheel = (id, hash, payload) => axios.patch(`/api/wheels/${id}?hash=${hash}`, payload);
+export const updateWheel = (id, password, payload) => axios.patch(`/api/wheels/${id}?password=${password}`, payload);
 export const getWheel = id => axios.get(`/api/wheels/${id}`);
-export const checkAdmin = (id, hash) => axios.post(`/api/wheels/check/${id}?hash=${hash}`);
+export const checkAdmin = (id, password) => axios.post(`/api/wheels/check/${id}?password=${password}`);
 
 
 // Util functions

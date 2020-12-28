@@ -9,7 +9,7 @@ const App = () => {
             <Router>
                 <Switch>
                     <Route path={'/'} exact component={HomePage} />
-                    <Route path={'/wheels/admin/:id/:hash'} component={AdminPage} />
+                    <Route path={'/wheels/:id/admin'} component={AdminPage} />
                 </Switch>
             </Router>
         </div>

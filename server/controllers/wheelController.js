@@ -1,4 +1,7 @@
 import Wheel from '../models/wheel.js';
+import bcrypt from 'bcrypt';
+
+const SALT_ROUNDS = 10;
 
 export const getWheelById = async (req, res) => {
     await Wheel.findOne({_id: req.params.id}, (err, wheel) => {
@@ -11,10 +14,17 @@ export const createWheel = (req, res) => {
     const body = req.body;
 
     if (!body) {
-        return res.status(400).body({success: false, error: 'Must provide body'});
+        return res.status(400).json({success: false, error: 'Must provide body'});
     }
 
-    const wheel = new Wheel(body);
+    if (!body.password) {
+        return res.status(400).json({success: false, error: 'Must set password'});
+    }
+
+    const wheel = new Wheel({
+        ownerHash: bcrypt.hashSync(body.password, SALT_ROUNDS),
+        wedges: body.wedges
+    });
 
     wheel
         .save()
@@ -35,12 +45,16 @@ export const updateWheel = async (req, res) => {
     const body = req.body;
 
     if (!body) {
-        return res.status(400).body({success: false, error: 'Must provide body'});
+        return res.status(400).json({success: false, error: 'Must provide body'});
     }
 
-    const exists = await Wheel.exists({_id: req.params.id, ownerHash: req.query.hash});
+    if (!req.query.password) {
+        return res.status(400).json({success: false, error: 'Must provide password'});
+    }
 
-    if (!exists) {
+    const validPassword = await isMatchingPassword(req.params.id, req.query.password)
+
+    if (!validPassword) {
         return res.status(404).send();
     }
 
@@ -50,17 +64,27 @@ export const updateWheel = async (req, res) => {
     });
 }
 
-export const checkWheel = async (req, res) => {
-    let exists;
-    try {
-        exists = await Wheel.exists({_id: req.params.id, ownerHash: req.query.hash});
-    } catch (err) {
-        return res.status(404).send();
+export const validatePassword = async (req, res) => {
+    if (!req.query.password) {
+        return res.status(400).json({success: false, error: 'Must provide password'})
     }
 
-    if (!exists) {
+    const matches = await isMatchingPassword(req.params.id, req.query.password);
+
+    if (!matches) {
         return res.status(404).send();
     }
 
     return res.status(204).send();
+}
+
+const isMatchingPassword = async (_id, pass) => {
+    let existingWheel;
+    try {
+        existingWheel = await Wheel.findOne({_id}).select('ownerHash');
+    } catch (err) {
+        return false;
+    }
+
+    return await bcrypt.compare(pass, existingWheel.ownerHash);
 }
