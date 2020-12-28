@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import API, { getErrorMessage } from '../api';
 import { Wheel } from '../components/Wheel';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Toast } from 'react-bootstrap';
 import randomSpin from '../util/randomSpin';
 import WheelForm from '../components/WheelForm';
+import { getUserRoute } from '../App';
 
 const AdminPage = ({match}) => {
     const [isAuthenticated, setAuthenticated] = useState(false);
@@ -14,6 +15,7 @@ const AdminPage = ({match}) => {
     const [wedges, setWedges] = useState(null);
     const [winner, setWinner] = useState(null);
     const [showEdit, setShowEdit] = useState(false);
+    const [showCopyToast, setShowCopyToast] = useState(false);
 
     const updateWheel = (newWedges) => {
         API.updateWheel(match.params.id, password, {wedges: newWedges})
@@ -51,6 +53,11 @@ const AdminPage = ({match}) => {
         updateWheel(wedges);
         setShowEdit(false);
     };
+
+    const copyUserRoute = () => {
+        navigator.clipboard.writeText(`${window.location.host}${getUserRoute(match.params.id)}`);
+        setShowCopyToast(true);
+    }
 
     useEffect(() => {
         if (wedges) {
@@ -112,6 +119,14 @@ const AdminPage = ({match}) => {
                     Edit
                 </Button>
             </div>
+
+            <Button variant={'link'} onClick={copyUserRoute}>Copy User Link</Button>
+
+            <Toast style={{flexBasis: '0'}} onClose={() => setShowCopyToast(false)} show={showCopyToast} delay={1000}
+                   autohide>
+                <Toast.Body>Copied!</Toast.Body>
+            </Toast>
+
             <WheelForm show={showEdit}
                        title={'Edit Wheel'}
                        includePassword={false}
