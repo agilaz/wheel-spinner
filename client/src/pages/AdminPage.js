@@ -140,7 +140,7 @@ const AdminPage = ({match}) => {
     };
 
     const copyUserRoute = () => {
-        navigator.clipboard.writeText(`${window.location.host}${getUserRoute(match.params.id)}`);
+        navigator.clipboard.writeText(`https://${window.location.host}${getUserRoute(match.params.id)}`);
         setShowCopyToast(true);
     }
 
