@@ -13,6 +13,7 @@ const HomePage = () => {
     const [showLoad, setShowLoad] = useState(false);
 
     const submitWheel = (wheel) => {
+        console.log(wheel);
         API.createWheel(wheel)
             .then((resp) => resp.data)
             .then(data => setRedirect(getAdminRoute(data.id)))
@@ -43,7 +44,7 @@ const HomePage = () => {
                 </Button>
             </div>
             <WheelForm show={showCreate}
-                       title={'Create Wheel'}
+                       modalTitle={'Create Wheel'}
                        includePassword={true}
                        handleClose={() => setShowCreate(false)}
                        handleSubmit={submitWheel} />

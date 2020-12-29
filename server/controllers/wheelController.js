@@ -29,9 +29,11 @@ export const createWheel = (req, res) => {
         return res.status(400).json({success: false, error: 'Wedges must have positive weights'});
     }
 
+    const {password, ...saveData} = body;
+
     const wheel = new Wheel({
         ownerHash: bcrypt.hashSync(body.password, SALT_ROUNDS),
-        wedges: body.wedges
+        ...saveData
     });
 
     wheel

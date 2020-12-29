@@ -16,7 +16,7 @@ const app = express();
 
 // Set up mongoose connection
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false}).catch(e => {
-    console.error('Connection error', e.message)
+    console.error('Connection error', e.message);
 });
 
 app.use(express.json());

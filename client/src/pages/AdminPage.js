@@ -18,6 +18,7 @@ import {
     SYNC_WHEEL_ROTATION
 } from '../util/socketEvents';
 import SpinsControls from '../components/SpinsControls';
+import WinModal from '../components/WinModal';
 
 const socket = io();
 const AdminPage = ({match}) => {
@@ -31,6 +32,7 @@ const AdminPage = ({match}) => {
     const [winner, setWinner] = useState(null);
     const [showEdit, setShowEdit] = useState(false);
     const [showCopyToast, setShowCopyToast] = useState(false);
+    const [showWinner, setShowWinner] = useState(false);
 
 
     // If url changes, reload the wedges
@@ -56,7 +58,11 @@ const AdminPage = ({match}) => {
     // On rotation update, update the rotation sync request event listeners
     useEffect(() => {
         socket.off(REQUEST_ROTATION_SYNC);
-        socket.on(REQUEST_ROTATION_SYNC, ({userId}) => socket.emit(SYNC_WHEEL_ROTATION, {room: match.params.id, rotation, userId}));
+        socket.on(REQUEST_ROTATION_SYNC, ({userId}) => socket.emit(SYNC_WHEEL_ROTATION, {
+            room: match.params.id,
+            rotation,
+            userId
+        }));
     }, [rotation]);
 
     // On allowedSpins update, refresh the allowed/request event listeners
@@ -80,7 +86,7 @@ const AdminPage = ({match}) => {
 
     // Generate random spin and send to users
     const startSpin = () => {
-        const spin = randomSpin();
+        const spin = randomSpin(wheel);
 
         // Maintain spins remaining (if negative, leave as is)
         const spinsRemaining = (allowedSpins > 0) ? allowedSpins - 1 : allowedSpins;
@@ -92,6 +98,7 @@ const AdminPage = ({match}) => {
 
     // Update users and db with wheel changes
     const updateWheel = (newWheel) => {
+        console.log(newWheel);
         socket.emit(SYNC_WHEEL, {room: match.params.id, wheel: newWheel});
         API.updateWheel(match.params.id, password, newWheel)
             .then(resp => resp.data)
@@ -112,6 +119,7 @@ const AdminPage = ({match}) => {
         setSpin(null);
         setRotation(rotation);
         setWinner(wheel.wedges[winnerIndex]);
+        setShowWinner(true);
         const newWedges = [...wheel.wedges];
         newWedges[winnerIndex] = {...newWedges[winnerIndex], hidden: false};
         const newWheel = {...wheel, wedges: newWedges};
@@ -170,9 +178,13 @@ const AdminPage = ({match}) => {
     // Loaded view - show wheel and controls
     return (
         <div className="App">
-            <p>{winner && winner.label}</p>
-            <p>{winner && winner.description}</p>
-            <Wheel size={700} wedges={wheel.wedges} onSpinEnd={handleSpinEnd} spin={spin} initialRotation={rotation} />
+            <p>{wheel.title}</p>
+            <Wheel size={700}
+                   wedges={wheel.wedges}
+                   onSpinEnd={handleSpinEnd}
+                   spin={spin}
+                   spinSound={wheel.spinSound}
+                   initialRotation={rotation} />
             <div style={{flexDirection: 'row'}}>
                 <Button variant={'primary'}
                         disabled={!!spin}
@@ -200,11 +212,17 @@ const AdminPage = ({match}) => {
             <SpinsControls allowedSpins={allowedSpins} setAllowedSpins={changeAllowedSpins} />
 
             <WheelForm show={showEdit}
-                       title={'Edit Wheel'}
+                       modalTitle={'Edit Wheel'}
                        includePassword={false}
                        initialState={wheel}
                        handleClose={() => setShowEdit(false)}
                        handleSubmit={(wheel) => handleEdit(wheel)} />
+
+            <WinModal show={showWinner}
+                      handleClose={() => setShowWinner(false)}
+                      title={winner && winner.label}
+                      description={winner && winner.description}
+                      winSound={wheel.winSound} />
         </div>
     );
 }

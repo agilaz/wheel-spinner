@@ -14,6 +14,7 @@ import {
     SYNC_WHEEL_ROTATION,
     USER_ROOM
 } from '../util/socketEvents';
+import WinModal from '../components/WinModal';
 
 const socket = io();
 
@@ -25,6 +26,7 @@ const UserPage = ({match}) => {
     const [error, setError] = useState(null);
     const [wheel, setWheel] = useState(null);
     const [winner, setWinner] = useState(null);
+    const [showWinner, setShowWinner] = useState(false);
 
     // On page load, start socket; on deload, disconnect it
     useEffect(() => {
@@ -41,7 +43,10 @@ const UserPage = ({match}) => {
 
         socket.on(SYNC_WHEEL, (wheel) => setWheel(wheel));
 
-        socket.on(ANNOUNCE_WINNER, (winner) => setWinner(winner));
+        socket.on(ANNOUNCE_WINNER, (winner) => {
+            setWinner(winner);
+            setShowWinner(true);
+        });
 
         socket.on(ANNOUNCE_SPINNABLE, (spinnable) => setSpinnable(spinnable));
 
@@ -84,12 +89,12 @@ const UserPage = ({match}) => {
     // Loaded view - show wheel and controls
     return (
         <div className="App">
-            <p>{winner && winner.label}</p>
-            <p>{winner && winner.description}</p>
+            <p>{wheel.title}</p>
             <Wheel size={700}
                    wedges={wheel.wedges}
                    onSpinEnd={handleSpinEnd}
                    spin={spin}
+                   spinSound={wheel.spinSound}
                    initialRotation={rotation} />
             <div style={{flexDirection: 'row'}}>
                 <Button variant={'primary'}
@@ -98,6 +103,11 @@ const UserPage = ({match}) => {
                     Spin
                 </Button>
             </div>
+            <WinModal show={showWinner}
+                      handleClose={() => setShowWinner(false)}
+                      title={winner && winner.label}
+                      description={winner && winner.description}
+                      winSound={wheel.winSound} />
         </div>
     );
 }
