@@ -34,10 +34,13 @@ const buildWedges = (wedges, radius) => {
         // How wide the wedge should be, based on % of total weight
         const angle = (wedge.weight * CIRCLE_DEGREES) / totalWeight;
         // Wedge is the background shape, assign angle/radius from params and then give it random color
+        const [wedgeColor, textColor] = rainbowColor(idx, wedges.length);
         const wedgeComponent = <Wedge
             angle={angle}
             radius={radius}
-            fill={rainbowColor(idx, wedges.length)}
+            fill={wedgeColor}
+            stroke={'#000000'}
+            strokeWidth={1.5}
         />;
         // Text within the wedge from the label.
         // Text angle has to be offset so that it is pointing from the outside of the wedge in.
@@ -47,6 +50,7 @@ const buildWedges = (wedges, radius) => {
             offsetX={radius - TEXT_LEFT_PADDING}
             offsetY={FONT_SIZE / 2}
             fontSize={FONT_SIZE}
+            fill={textColor}
         />;
         // Group handles overall position and rotation
         const component = <Group
