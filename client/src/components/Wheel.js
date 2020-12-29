@@ -3,6 +3,7 @@ import { Group, Layer, Stage, Text, Wedge } from 'react-konva';
 import Konva from 'konva';
 import { rainbowColor } from '../util';
 import { CIRCLE_DEGREES } from '../util/randomSpin';
+import useAudio from '../util/useAudio';
 
 // Laziness
 const FONT_SIZE = 20;
@@ -84,7 +85,9 @@ const buildIndicator = (pageSize) => {
                   fill={'#000000'} />
 }
 
-export const Wheel = ({size = 500, wedges = [], spin, onSpinEnd, initialRotation}) => {
+export const Wheel = ({size = 500, wedges = [], spin, spinSound, onSpinEnd, initialRotation}) => {
+    const [, , playAudio, stopAudio] = useAudio(spinSound);
+
     // Need ref for wheel to make animation work
     const wheelRef = useRef(null);
 
@@ -112,10 +115,18 @@ export const Wheel = ({size = 500, wedges = [], spin, onSpinEnd, initialRotation
         });
         tween.play();
 
+        // Also start the sound (if provided)
+        if (!!spinSound) {
+            playAudio();
+        }
+
         // After spinning, finish and clean up animation and call callbacks
         setTimeout(() => {
             tween.finish();
             tween.destroy();
+
+            // Stop sound
+            stopAudio();
 
             // Figure out what the ticker is pointing towards
             // (slightly weird math since it's 180 degrees out of sync of the wheel's 0)

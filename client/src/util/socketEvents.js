@@ -2,7 +2,7 @@
 export const ADMIN_ROOM = 'admin-room';
 export const DO_SPIN = 'admin-send-spin';
 export const SYNC_WHEEL_ROTATION = 'admin-sync-rotation';
-export const SYNC_WEDGES = 'admin-sync-wedges';
+export const SYNC_WHEEL = 'admin-sync-wheel';
 export const ANNOUNCE_WINNER = 'admin-send-winner';
 export const ANNOUNCE_SPINNABLE = 'admin-send-spinnable';
 

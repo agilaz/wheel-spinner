@@ -3,8 +3,24 @@ import bcrypt from 'bcrypt';
 
 const SALT_ROUNDS = 10;
 
+export const getAllTitles = async (req, res) => {
+    await Wheel.find()
+        .select('title')
+        .exec((err, wheels) => {
+            if (err) return res.status(400).json({success: false, error: err});
+            return res.status(200).json({titles: wheels.map(wheel => wheel.title)});
+        });
+}
+
 export const getWheelById = async (req, res) => {
     await Wheel.findOne({_id: req.params.id}, (err, wheel) => {
+        if (err) return res.status(400).json({success: false, error: err});
+        return res.status(200).json(wheel);
+    });
+}
+
+export const findWheel = async (req, res) => {
+    await Wheel.findOne(req.body, (err, wheel) => {
         if (err) return res.status(400).json({success: false, error: err});
         return res.status(200).json(wheel);
     });
@@ -29,9 +45,11 @@ export const createWheel = (req, res) => {
         return res.status(400).json({success: false, error: 'Wedges must have positive weights'});
     }
 
+    const {password, ...saveData} = body;
+
     const wheel = new Wheel({
         ownerHash: bcrypt.hashSync(body.password, SALT_ROUNDS),
-        wedges: body.wedges
+        ...saveData
     });
 
     wheel
