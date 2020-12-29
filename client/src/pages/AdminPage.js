@@ -98,7 +98,6 @@ const AdminPage = ({match}) => {
 
     // Update users and db with wheel changes
     const updateWheel = (newWheel) => {
-        console.log(newWheel);
         socket.emit(SYNC_WHEEL, {room: match.params.id, wheel: newWheel});
         API.updateWheel(match.params.id, password, newWheel)
             .then(resp => resp.data)
