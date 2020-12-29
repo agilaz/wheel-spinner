@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import API, { getErrorMessage } from '../api';
 import WheelForm from '../components/WheelForm';
@@ -11,6 +11,14 @@ const HomePage = () => {
     const [error, setError] = useState(null);
     const [showCreate, setShowCreate] = useState(false);
     const [showLoad, setShowLoad] = useState(false);
+    const [titles, setTitles] = useState([]);
+
+    useEffect(() => {
+        API.getTitles()
+            .then(resp => resp.data)
+            .then(data => setTitles(data.titles))
+            .catch(err => setError(getErrorMessage(err)));
+    }, []);
 
     const submitWheel = (wheel) => {
         console.log(wheel);
@@ -21,8 +29,11 @@ const HomePage = () => {
         setShowCreate(false);
     }
 
-    const loadWheel = (id, isAdmin) => {
-        setRedirect(isAdmin ? getAdminRoute(id) : getUserRoute(id));
+    const loadWheel = (title, isAdmin) => {
+        API.findWheel({title})
+            .then((resp) => resp.data)
+            .then(data => setRedirect(isAdmin ? getAdminRoute(data._id) : getUserRoute(data._id)))
+            .catch(err => setError(getErrorMessage(err)));
     }
 
     if (redirect) {
@@ -49,6 +60,7 @@ const HomePage = () => {
                        handleClose={() => setShowCreate(false)}
                        handleSubmit={submitWheel} />
             <WheelLoadForm show={showLoad}
+                           options={titles}
                            handleClose={() => setShowLoad(false)}
                            handleSubmit={loadWheel} />
         </>
