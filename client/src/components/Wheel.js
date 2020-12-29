@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Group, Layer, Stage, Text, Wedge } from 'react-konva';
 import Konva from 'konva';
-import { rainbowColor } from '../util';
+import { rainbowColor, wheelEasing } from '../util';
 import { CIRCLE_DEGREES } from '../util/randomSpin';
 import useAudio from '../util/useAudio';
 
@@ -110,7 +110,7 @@ export const Wheel = ({size = 500, wedges = [], spin, spinSound, onSpinEnd, init
         const tween = new Konva.Tween({
             node: wheelRef.current,
             duration: spin.duration / 1000,
-            easing: Konva.Easings.EaseInOut,
+            easing: wheelEasing,
             rotation: finalRotation
         });
         tween.play();
