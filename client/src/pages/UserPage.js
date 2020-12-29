@@ -10,10 +10,11 @@ import {
     REQUEST_ROTATION_SYNC,
     REQUEST_SPIN,
     REQUEST_SPINNABLE,
-    SYNC_WEDGES,
+    SYNC_WHEEL,
     SYNC_WHEEL_ROTATION,
     USER_ROOM
 } from '../util/socketEvents';
+import WinModal from '../components/WinModal';
 
 const socket = io();
 
@@ -23,8 +24,9 @@ const UserPage = ({match}) => {
     const [isSpinnable, setSpinnable] = useState(false);
     const [rotation, setRotation] = useState(0);
     const [error, setError] = useState(null);
-    const [wedges, setWedges] = useState(null);
+    const [wheel, setWheel] = useState(null);
     const [winner, setWinner] = useState(null);
+    const [showWinner, setShowWinner] = useState(false);
 
     // On page load, start socket; on deload, disconnect it
     useEffect(() => {
@@ -39,9 +41,12 @@ const UserPage = ({match}) => {
 
         socket.on(SYNC_WHEEL_ROTATION, (rotation) => setRotation(rotation));
 
-        socket.on(SYNC_WEDGES, (wedges) => setWedges(wedges));
+        socket.on(SYNC_WHEEL, (wheel) => setWheel(wheel));
 
-        socket.on(ANNOUNCE_WINNER, (winner) => setWinner(winner));
+        socket.on(ANNOUNCE_WINNER, (winner) => {
+            setWinner(winner);
+            setShowWinner(true);
+        });
 
         socket.on(ANNOUNCE_SPINNABLE, (spinnable) => setSpinnable(spinnable));
 
@@ -63,7 +68,7 @@ const UserPage = ({match}) => {
     useEffect(() => {
         API.getWheel(match.params.id)
             .then(resp => resp.data)
-            .then(data => setWedges(data.wedges))
+            .then(data => setWheel(data))
             .catch((err) => setError(getErrorMessage(err)));
     }, [match]);
 
@@ -75,7 +80,7 @@ const UserPage = ({match}) => {
     }
 
     // Loading view - show loading text
-    if (!wedges) {
+    if (!wheel) {
         return (
             <p>Loading</p>
         );
@@ -84,12 +89,12 @@ const UserPage = ({match}) => {
     // Loaded view - show wheel and controls
     return (
         <div className="App">
-            <p>{winner && winner.label}</p>
-            <p>{winner && winner.description}</p>
+            <p>{wheel.title}</p>
             <Wheel size={700}
-                   wedges={wedges}
+                   wedges={wheel.wedges}
                    onSpinEnd={handleSpinEnd}
                    spin={spin}
+                   spinSound={wheel.spinSound}
                    initialRotation={rotation} />
             <div style={{flexDirection: 'row'}}>
                 <Button variant={'primary'}
@@ -98,6 +103,11 @@ const UserPage = ({match}) => {
                     Spin
                 </Button>
             </div>
+            <WinModal show={showWinner}
+                      handleClose={() => setShowWinner(false)}
+                      title={winner && winner.label}
+                      description={winner && winner.description}
+                      winSound={wheel.winSound} />
         </div>
     );
 }

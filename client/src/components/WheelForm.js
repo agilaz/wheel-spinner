@@ -3,11 +3,18 @@ import { Button, Col, Form, Modal } from 'react-bootstrap';
 
 const EMPTY_WEDGE = {label: '', weight: 0, description: '', hidden: true};
 
-const WheelForm = ({initialState, includePassword, title, show, handleClose, handleSubmit}) => {
+const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose, handleSubmit}) => {
     // Password only used on create
     const [password, setPassword] = useState((initialState && initialState.password) || '');
-    // Wedges used on create/update
+
+    const [title, setTitle] = useState((initialState && initialState.title || ''));
+    const [spinSound, setSpinSound] = useState((initialState && initialState.spinSound || ''));
+    const [winSound, setWinSound] = useState((initialState && initialState.winSound || ''));
     const [wedges, setWedges] = useState((initialState && initialState.wedges) || []);
+    const [minSpins, setMinSpins] = useState((initialState && initialState.minSpins) || '');
+    const [maxSpins, setMaxSpins] = useState((initialState && initialState.maxSpins) || '');
+    const [minSpinDurationMillis, setMinSpinDurationMillis] = useState((initialState && initialState.minSpinDurationMillis) || '');
+    const [maxSpinDurationMillis, setMaxSpinDurationMillis] = useState((initialState && initialState.maxSpinDurationMillis) || '');
 
     // Refresh state if the initialState/includePassword props update
     useEffect(() => {
@@ -17,6 +24,9 @@ const WheelForm = ({initialState, includePassword, title, show, handleClose, han
 
         if (initialState) {
             setWedges(initialState.wedges || []);
+            setTitle(initialState.title || '');
+            setSpinSound(initialState.spinSound || '');
+            setWinSound(initialState.winSound || '');
         }
     }, [includePassword, initialState]);
 
@@ -33,7 +43,16 @@ const WheelForm = ({initialState, includePassword, title, show, handleClose, han
     }
 
     const submitChanges = () => {
-        const newWheel = {wedges};
+        const newWheel = {
+            wedges,
+            title,
+            spinSound,
+            winSound,
+            minSpins,
+            maxSpins,
+            minSpinDurationMillis,
+            maxSpinDurationMillis
+        };
 
         if (includePassword) {
             newWheel.password = password;
@@ -46,15 +65,33 @@ const WheelForm = ({initialState, includePassword, title, show, handleClose, han
         <Modal show={show} onHide={handleClose}>
             <Form>
                 <Modal.Header closeButton>
-                    <Modal.Title>{title}</Modal.Title>
+                    <Modal.Title>{modalTitle}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <Form.Label>Title</Form.Label>
+                    <Form.Control value={title} onChange={(evt) => setTitle(evt.target.value)} />
                     {includePassword &&
                     <Form.Group>
                         <Form.Label>Password</Form.Label>
                         <Form.Control value={password} onChange={(evt) => setPassword(evt.target.value)} />
                     </Form.Group>
                     }
+                    <Form.Label>Sound on spin</Form.Label>
+                    <Form.Control value={spinSound} onChange={(evt) => setSpinSound(evt.target.value)} />
+                    <Form.Label>Sound on win</Form.Label>
+                    <Form.Control value={winSound} onChange={(evt) => setWinSound(evt.target.value)} />
+                    <Form.Label>Min Spins</Form.Label>
+                    <Form.Control value={minSpins} type={'number'}
+                                  onChange={(evt) => setMinSpins(evt.target.value === '' ? '' : Number(evt.target.value))} />
+                    <Form.Label>Max Spins</Form.Label>
+                    <Form.Control value={maxSpins} type={'number'}
+                                  onChange={(evt) => setMaxSpins(evt.target.value === '' ? '' : Number(evt.target.value))} />
+                    <Form.Label>Min Spin Duration Millis</Form.Label>
+                    <Form.Control value={minSpinDurationMillis} type={'number'}
+                                  onChange={(evt) => setMinSpinDurationMillis(evt.target.value === '' ? '' : Number(evt.target.value))} />
+                    <Form.Label>Max Spin Duration Millis</Form.Label>
+                    <Form.Control value={maxSpinDurationMillis} type={'number'}
+                                  onChange={(evt) => setMaxSpinDurationMillis(evt.target.value === '' ? '' : Number(evt.target.value))} />
                     <b>Options</b>
                     <hr />
                     {wedges.map((wedge, i) =>
