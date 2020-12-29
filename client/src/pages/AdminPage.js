@@ -14,7 +14,7 @@ import {
     REQUEST_ROTATION_SYNC,
     REQUEST_SPIN,
     REQUEST_SPINNABLE,
-    SYNC_WEDGES,
+    SYNC_WHEEL,
     SYNC_WHEEL_ROTATION
 } from '../util/socketEvents';
 import SpinsControls from '../components/SpinsControls';
@@ -27,7 +27,7 @@ const AdminPage = ({match}) => {
     const [allowedSpins, setAllowedSpins] = useState(0);
     const [rotation, setRotation] = useState(0);
     const [error, setError] = useState(null);
-    const [wedges, setWedges] = useState(null);
+    const [wheel, setWheel] = useState(null);
     const [winner, setWinner] = useState(null);
     const [showEdit, setShowEdit] = useState(false);
     const [showCopyToast, setShowCopyToast] = useState(false);
@@ -37,7 +37,7 @@ const AdminPage = ({match}) => {
     useEffect(() => {
         API.getWheel(match.params.id)
             .then(resp => resp.data)
-            .then(data => setWedges(data.wedges))
+            .then(data => setWheel(data))
             .catch((err) => setError(getErrorMessage(err)));
     }, [match]);
 
@@ -91,11 +91,11 @@ const AdminPage = ({match}) => {
     }
 
     // Update users and db with wheel changes
-    const updateWheel = (newWedges) => {
-        socket.emit(SYNC_WEDGES, {room: match.params.id, wedges: newWedges});
-        API.updateWheel(match.params.id, password, {wedges: newWedges})
+    const updateWheel = (newWheel) => {
+        socket.emit(SYNC_WHEEL, {room: match.params.id, wheel: newWheel});
+        API.updateWheel(match.params.id, password, newWheel)
             .then(resp => resp.data)
-            .then(data => setWedges(data.wedges))
+            .then(data => setWheel(data))
             .catch((err) => setError(getErrorMessage(err)));
     }
 
@@ -111,22 +111,23 @@ const AdminPage = ({match}) => {
     const handleSpinEnd = (winnerIndex, rotation) => {
         setSpin(null);
         setRotation(rotation);
-        setWinner(wedges[winnerIndex]);
-        const newWedges = [...wedges];
+        setWinner(wheel.wedges[winnerIndex]);
+        const newWedges = [...wheel.wedges];
         newWedges[winnerIndex] = {...newWedges[winnerIndex], hidden: false};
-        setWedges(newWedges);
-        updateWheel(newWedges);
+        const newWheel = {...wheel, wedges: newWedges};
+        setWheel(newWheel)
+        updateWheel(newWheel);
         socket.emit(SYNC_WHEEL_ROTATION, {room: match.params.id, rotation});
-        socket.emit(ANNOUNCE_WINNER, {room: match.params.id, winner: wedges[winnerIndex]});
+        socket.emit(ANNOUNCE_WINNER, {room: match.params.id, winner: newWedges[winnerIndex]});
     };
 
     const hideAllWedges = () => {
-        const newWedges = [...wedges].map(wedge => ({...wedge, hidden: true}));
-        updateWheel(newWedges);
+        const newWedges = [...wheel.wedges].map(wedge => ({...wedge, hidden: true}));
+        updateWheel({...wheel, wedges: newWedges});
     };
 
-    const handleEdit = ({wedges}) => {
-        updateWheel(wedges);
+    const handleEdit = (newWheel) => {
+        updateWheel(newWheel);
         setShowEdit(false);
     };
 
@@ -160,7 +161,7 @@ const AdminPage = ({match}) => {
     }
 
     // Loading view - show loading text
-    if (!wedges) {
+    if (!wheel) {
         return (
             <p>Loading</p>
         );
@@ -171,7 +172,7 @@ const AdminPage = ({match}) => {
         <div className="App">
             <p>{winner && winner.label}</p>
             <p>{winner && winner.description}</p>
-            <Wheel size={700} wedges={wedges} onSpinEnd={handleSpinEnd} spin={spin} initialRotation={rotation} />
+            <Wheel size={700} wedges={wheel.wedges} onSpinEnd={handleSpinEnd} spin={spin} initialRotation={rotation} />
             <div style={{flexDirection: 'row'}}>
                 <Button variant={'primary'}
                         disabled={!!spin}
@@ -201,7 +202,7 @@ const AdminPage = ({match}) => {
             <WheelForm show={showEdit}
                        title={'Edit Wheel'}
                        includePassword={false}
-                       initialState={{wedges: wedges}}
+                       initialState={wheel}
                        handleClose={() => setShowEdit(false)}
                        handleSubmit={(wheel) => handleEdit(wheel)} />
         </div>

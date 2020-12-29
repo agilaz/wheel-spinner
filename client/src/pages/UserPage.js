@@ -10,7 +10,7 @@ import {
     REQUEST_ROTATION_SYNC,
     REQUEST_SPIN,
     REQUEST_SPINNABLE,
-    SYNC_WEDGES,
+    SYNC_WHEEL,
     SYNC_WHEEL_ROTATION,
     USER_ROOM
 } from '../util/socketEvents';
@@ -23,7 +23,7 @@ const UserPage = ({match}) => {
     const [isSpinnable, setSpinnable] = useState(false);
     const [rotation, setRotation] = useState(0);
     const [error, setError] = useState(null);
-    const [wedges, setWedges] = useState(null);
+    const [wheel, setWheel] = useState(null);
     const [winner, setWinner] = useState(null);
 
     // On page load, start socket; on deload, disconnect it
@@ -39,7 +39,7 @@ const UserPage = ({match}) => {
 
         socket.on(SYNC_WHEEL_ROTATION, (rotation) => setRotation(rotation));
 
-        socket.on(SYNC_WEDGES, (wedges) => setWedges(wedges));
+        socket.on(SYNC_WHEEL, (wheel) => setWheel(wheel));
 
         socket.on(ANNOUNCE_WINNER, (winner) => setWinner(winner));
 
@@ -63,7 +63,7 @@ const UserPage = ({match}) => {
     useEffect(() => {
         API.getWheel(match.params.id)
             .then(resp => resp.data)
-            .then(data => setWedges(data.wedges))
+            .then(data => setWheel(data))
             .catch((err) => setError(getErrorMessage(err)));
     }, [match]);
 
@@ -75,7 +75,7 @@ const UserPage = ({match}) => {
     }
 
     // Loading view - show loading text
-    if (!wedges) {
+    if (!wheel) {
         return (
             <p>Loading</p>
         );
@@ -87,7 +87,7 @@ const UserPage = ({match}) => {
             <p>{winner && winner.label}</p>
             <p>{winner && winner.description}</p>
             <Wheel size={700}
-                   wedges={wedges}
+                   wedges={wheel.wedges}
                    onSpinEnd={handleSpinEnd}
                    spin={spin}
                    initialRotation={rotation} />

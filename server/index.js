@@ -43,7 +43,7 @@ const io = new Server(server);
 const ADMIN_ROOM = 'admin-room';
 const DO_SPIN = 'admin-send-spin';
 const SYNC_WHEEL_ROTATION = 'admin-sync-rotation';
-const SYNC_WEDGES = 'admin-sync-wedges';
+const SYNC_WHEEL = 'admin-sync-wheel';
 const ANNOUNCE_WINNER = 'admin-send-winner';
 const ANNOUNCE_SPINNABLE = 'admin-send-spinnable';
 
@@ -86,8 +86,8 @@ io.on('connection', (socket) => {
         socket.to(broadcastTo).emit(ANNOUNCE_SPINNABLE, spinnable);
     });
 
-    socket.on(SYNC_WEDGES, ({room, wedges}) => {
-        socket.to(room).emit(SYNC_WEDGES, wedges);
+    socket.on(SYNC_WHEEL, ({room, wheel}) => {
+        socket.to(room).emit(SYNC_WHEEL, wheel);
     });
 
     socket.on(ANNOUNCE_WINNER, ({room, winner}) => {
