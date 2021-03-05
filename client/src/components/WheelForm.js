@@ -112,7 +112,7 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
                                     </Col>
                                     <Col xs={3}>
                                         <Form.Label>Hidden</Form.Label>
-                                        <Form.Check defaultChecked={wedge.hidden}
+                                        <Form.Check checked={wedge.hidden}
                                                     onChange={(evt) => updateWedge(i, {hidden: evt.target.checked})} />
                                     </Col>
                                     <Col xs={2}>
