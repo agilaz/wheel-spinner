@@ -12,12 +12,14 @@ const Wheel = new Schema(
             hidden: Boolean
         }],
         title: {type: String, required: true, unique: true},
+        backgroundImage: {type: String},
         spinSound: {type: String},
         winSound: {type: String},
         minSpins: {type: Number},
         maxSpins: {type: Number},
         minSpinDurationMillis: {type: Number},
-        maxSpinDurationMillis: {type: Number}
+        maxSpinDurationMillis: {type: Number},
+        isRemoveOnSpin: {type: Boolean}
     }
 );
 

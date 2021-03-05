@@ -27,6 +27,8 @@ const UserPage = ({match}) => {
     const [wheel, setWheel] = useState(null);
     const [winner, setWinner] = useState(null);
     const [showWinner, setShowWinner] = useState(false);
+    const [toRemove, setToRemove] = useState(null);
+    const [futureWheel, setFutureWheel] = useState(null);
 
     // On page load, start socket; on deload, disconnect it
     useEffect(() => {
@@ -37,21 +39,38 @@ const UserPage = ({match}) => {
         socket.emit(REQUEST_SPINNABLE, {room: match.params.id});
 
         // Listen for admin provided events
-        socket.on(DO_SPIN, (spin) => setSpin(spin));
+        socket.on(DO_SPIN, ({wheel, spin}) => {
+            setWheel(wheel);
+            setSpin(spin);
+        });
 
         socket.on(SYNC_WHEEL_ROTATION, (rotation) => setRotation(rotation));
 
         socket.on(SYNC_WHEEL, (wheel) => setWheel(wheel));
 
-        socket.on(ANNOUNCE_WINNER, (winner) => {
+        socket.on(ANNOUNCE_WINNER, ({winner, toRemove, futureWheel}) => {
             setWinner(winner);
             setShowWinner(true);
+            if (!toRemove) {
+                setWheel(futureWheel);
+            } else {
+                setToRemove(toRemove);
+                setFutureWheel(futureWheel);
+            }
         });
 
         socket.on(ANNOUNCE_SPINNABLE, (spinnable) => setSpinnable(spinnable));
 
         return () => socket.disconnect();
     }, []);
+
+    // After transitioning a wedge, reset the wheel based on admin's view
+    useEffect(() => {
+        if (!toRemove) {
+            setWheel(futureWheel);
+            setFutureWheel(null);
+        }
+    }, [toRemove])
 
     // Request spin from admin
     const requestSpin = () => {
@@ -94,11 +113,16 @@ const UserPage = ({match}) => {
                    wedges={wheel.wedges}
                    onSpinEnd={handleSpinEnd}
                    spin={spin}
+                   toRemove={toRemove}
+                   onRemoveEnd={() => {
+                       setToRemove(null);
+                   }}
                    spinSound={wheel.spinSound}
+                   backgroundImage={wheel.backgroundImage}
                    initialRotation={rotation} />
             <div style={{flexDirection: 'row'}}>
                 <Button variant={'primary'}
-                        disabled={!!spin || !isSpinnable}
+                        disabled={!!spin || !isSpinnable || !!toRemove}
                         onClick={() => requestSpin()}>
                     Spin
                 </Button>

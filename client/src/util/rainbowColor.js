@@ -47,13 +47,17 @@ const rgb2hex = ({r, g, b}) =>
         )
         .join('');
 
+export const rainbowColors = (n) => {
+    return Array(n).fill().map((_, idx) => rainbowColor(idx, n));
+}
+
 /**
  * Pick the ith color out of a rainbow with n steps
  * @param i
  * @param n
  * @returns {string[]}
  */
-const rainbowColor = (i, n) => {
+export const rainbowColor = (i, n) => {
     const h = i / n;
     const f = (n, k = (n + h * 12) % 12) =>
         0.5 - 0.5 * Math.max(Math.min(k - 3, 9 - k, 1), -1);
