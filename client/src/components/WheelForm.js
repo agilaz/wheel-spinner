@@ -15,6 +15,8 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
     const [maxSpins, setMaxSpins] = useState((initialState && initialState.maxSpins) || '');
     const [minSpinDurationMillis, setMinSpinDurationMillis] = useState((initialState && initialState.minSpinDurationMillis) || '');
     const [maxSpinDurationMillis, setMaxSpinDurationMillis] = useState((initialState && initialState.maxSpinDurationMillis) || '');
+    const [isRemoveOnSpin, setRemoveOnSpin] = useState((initialState && initialState.isRemoveOnSpin) || false);
+    const [backgroundImage, setBackgroundImage] = useState((initialState && initialState.backgroundImage) || '');
 
     // Refresh state if the initialState/includePassword props update
     useEffect(() => {
@@ -27,6 +29,12 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
             setTitle(initialState.title || '');
             setSpinSound(initialState.spinSound || '');
             setWinSound(initialState.winSound || '');
+            setMaxSpins(initialState.maxSpins || '');
+            setMinSpins(initialState.minSpins || '');
+            setMinSpinDurationMillis(initialState.minSpinDurationMillis || '')
+            setMaxSpinDurationMillis(initialState.maxSpinDurationMillis || '')
+            setRemoveOnSpin(initialState.isRemoveOnSpin || false);
+            setBackgroundImage(initialState.backgroundImage || '');
         }
     }, [includePassword, initialState]);
 
@@ -51,7 +59,9 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
             minSpins,
             maxSpins,
             minSpinDurationMillis,
-            maxSpinDurationMillis
+            maxSpinDurationMillis,
+            isRemoveOnSpin,
+            backgroundImage
         };
 
         if (includePassword) {
@@ -76,6 +86,8 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
                         <Form.Control value={password} onChange={(evt) => setPassword(evt.target.value)} />
                     </Form.Group>
                     }
+                    <Form.Label>Background image</Form.Label>
+                    <Form.Control value={backgroundImage} onChange={(evt) => setBackgroundImage(evt.target.value)} />
                     <Form.Label>Sound on spin</Form.Label>
                     <Form.Control value={spinSound} onChange={(evt) => setSpinSound(evt.target.value)} />
                     <Form.Label>Sound on win</Form.Label>
@@ -92,6 +104,9 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
                     <Form.Label>Max Spin Duration Millis</Form.Label>
                     <Form.Control value={maxSpinDurationMillis} type={'number'}
                                   onChange={(evt) => setMaxSpinDurationMillis(evt.target.value === '' ? '' : Number(evt.target.value))} />
+                    <Form.Check checked={isRemoveOnSpin}
+                                label="Remove Wedge on Spin"
+                                onChange={(evt) => setRemoveOnSpin(evt.target.checked)} />
                     <b>Options</b>
                     <hr />
                     {wedges.map((wedge, i) =>
@@ -112,7 +127,7 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
                                     </Col>
                                     <Col xs={3}>
                                         <Form.Label>Hidden</Form.Label>
-                                        <Form.Check defaultChecked={wedge.hidden}
+                                        <Form.Check checked={wedge.hidden}
                                                     onChange={(evt) => updateWedge(i, {hidden: evt.target.checked})} />
                                     </Col>
                                     <Col xs={2}>

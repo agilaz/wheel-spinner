@@ -72,8 +72,8 @@ io.on('connection', (socket) => {
     })
 
     // Admin emitted events
-    socket.on(DO_SPIN, ({room, spin}) => {
-        socket.to(room).emit(DO_SPIN, spin);
+    socket.on(DO_SPIN, ({room, spin, wheel}) => {
+        socket.to(room).emit(DO_SPIN, {spin, wheel});
     });
 
     socket.on(SYNC_WHEEL_ROTATION, ({room, rotation, userId}) => {
@@ -90,8 +90,8 @@ io.on('connection', (socket) => {
         socket.to(room).emit(SYNC_WHEEL, wheel);
     });
 
-    socket.on(ANNOUNCE_WINNER, ({room, winner}) => {
-        socket.to(room).emit(ANNOUNCE_WINNER, winner);
+    socket.on(ANNOUNCE_WINNER, ({room, winner, toRemove, futureWheel}) => {
+        socket.to(room).emit(ANNOUNCE_WINNER, {winner, toRemove, futureWheel});
     });
 
     // User emitted events
