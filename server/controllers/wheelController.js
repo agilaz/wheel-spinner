@@ -79,10 +79,6 @@ export const updateWheel = async (req, res) => {
     }
 
     if (body.wedges) {
-        if (!body.wedges.length) {
-            return res.status(400).json({success: false, error: 'Must set wedges'});
-        }
-
         if (body.wedges.some(wedge => !wedge.weight || wedge.weight <= 0)) {
             return res.status(400).json({success: false, error: 'Wedges must have positive weights'});
         }

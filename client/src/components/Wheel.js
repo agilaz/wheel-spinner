@@ -1,9 +1,10 @@
 import React, { createRef, useEffect, useRef } from 'react';
-import { Group, Layer, Stage, Text, Wedge } from 'react-konva';
+import { Group, Image, Layer, Stage, Text, Wedge } from 'react-konva';
 import Konva from 'konva';
-import { rainbowColor, wheelEasing } from '../util';
+import { rainbowColor, scaleImage, wheelEasing } from '../util';
 import { CIRCLE_DEGREES } from '../util/randomSpin';
 import useAudio from '../util/useAudio';
+import useImage from 'use-image';
 
 // Laziness
 const FONT_SIZE = 20;
@@ -46,7 +47,7 @@ const getWedgeAngles = (wedges) => {
  */
 const buildWedges = (wedges, radius, wedgeSizeRefs, wedgeOffsetRefs, textRotationRefs) => {
     if (!wedges || wedges.length === 0) {
-        return null;
+        return [];
     }
 
     const wedgeAngles = getWedgeAngles(wedges);
@@ -116,13 +117,14 @@ const buildIndicator = (pageSize) => {
 export const Wheel = ({
                           size = 500, wedges = [], spin, spinSound, onSpinEnd = () => {
     }, initialRotation, toRemove, onRemoveEnd = () => {
-    }
+    }, backgroundImage = ''
                       }) => {
     const [, , playAudio, stopAudio] = useAudio(spinSound);
 
     const [wedgeSizeRefs, setWedgeSizeRefs] = React.useState([]);
     const [wedgeOffsetRefs, setWedgeOffsetRefs] = React.useState([]);
     const [textRotationRefs, setTextRotationRefs] = React.useState([]);
+    const [image] = useImage(backgroundImage);
 
     // Need ref for wheel to make animation work
     const wheelRef = useRef(null);
@@ -272,12 +274,25 @@ export const Wheel = ({
         }, spin.duration + 1); // Set to happen just after animation finishes
     }, [spin]);
 
+    let imageComponent = null;
 
+    if (image) {
+        const padding = size * CANVAS_PADDING * 2;
+        const maxSize = size - (padding * 2);
+        const [imgWidth, imgHeight] = scaleImage(image.naturalWidth, image.naturalHeight, maxSize);
+        imageComponent = <Image image={image}
+                                width={imgWidth}
+                                height={imgHeight}
+                                x={(maxSize - imgWidth) / 2 + padding}
+                                y={(maxSize - imgHeight) / 2 + padding}
+        />
+    }
     return (
         <>
             <div>
                 <Stage width={size} height={size}>
                     <Layer>
+                        {imageComponent}
                         <Group ref={wheelRef}
                                rotation={initialRotation}
                                x={size / 2}

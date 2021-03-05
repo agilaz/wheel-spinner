@@ -16,6 +16,7 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
     const [minSpinDurationMillis, setMinSpinDurationMillis] = useState((initialState && initialState.minSpinDurationMillis) || '');
     const [maxSpinDurationMillis, setMaxSpinDurationMillis] = useState((initialState && initialState.maxSpinDurationMillis) || '');
     const [isRemoveOnSpin, setRemoveOnSpin] = useState((initialState && initialState.isRemoveOnSpin) || false);
+    const [backgroundImage, setBackgroundImage] = useState((initialState && initialState.backgroundImage) || '');
 
     // Refresh state if the initialState/includePassword props update
     useEffect(() => {
@@ -33,6 +34,7 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
             setMinSpinDurationMillis(initialState.minSpinDurationMillis || '')
             setMaxSpinDurationMillis(initialState.maxSpinDurationMillis || '')
             setRemoveOnSpin(initialState.isRemoveOnSpin || false);
+            setBackgroundImage(initialState.backgroundImage || '');
         }
     }, [includePassword, initialState]);
 
@@ -58,7 +60,8 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
             maxSpins,
             minSpinDurationMillis,
             maxSpinDurationMillis,
-            isRemoveOnSpin
+            isRemoveOnSpin,
+            backgroundImage
         };
 
         if (includePassword) {
@@ -83,6 +86,8 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
                         <Form.Control value={password} onChange={(evt) => setPassword(evt.target.value)} />
                     </Form.Group>
                     }
+                    <Form.Label>Background image</Form.Label>
+                    <Form.Control value={backgroundImage} onChange={(evt) => setBackgroundImage(evt.target.value)} />
                     <Form.Label>Sound on spin</Form.Label>
                     <Form.Control value={spinSound} onChange={(evt) => setSpinSound(evt.target.value)} />
                     <Form.Label>Sound on win</Form.Label>

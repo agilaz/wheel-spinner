@@ -28,8 +28,7 @@ const UserPage = ({match}) => {
     const [winner, setWinner] = useState(null);
     const [showWinner, setShowWinner] = useState(false);
     const [toRemove, setToRemove] = useState(null);
-    let onRemoveEnd = () => {
-    };
+    const [futureWheel, setFutureWheel] = useState(null);
 
     // On page load, start socket; on deload, disconnect it
     useEffect(() => {
@@ -56,11 +55,7 @@ const UserPage = ({match}) => {
                 setWheel(futureWheel);
             } else {
                 setToRemove(toRemove);
-                onRemoveEnd = () => {
-                    console.log(toRemove, futureWheel);
-                    setToRemove(null);
-                    setWheel(futureWheel);
-                }
+                setFutureWheel(futureWheel);
             }
         });
 
@@ -68,6 +63,14 @@ const UserPage = ({match}) => {
 
         return () => socket.disconnect();
     }, []);
+
+    // After transitioning a wedge, reset the wheel based on admin's view
+    useEffect(() => {
+        if (!toRemove) {
+            setWheel(futureWheel);
+            setFutureWheel(null);
+        }
+    }, [toRemove])
 
     // Request spin from admin
     const requestSpin = () => {
@@ -111,8 +114,11 @@ const UserPage = ({match}) => {
                    onSpinEnd={handleSpinEnd}
                    spin={spin}
                    toRemove={toRemove}
-                   onRemoveEnd={onRemoveEnd}
+                   onRemoveEnd={() => {
+                       setToRemove(null);
+                   }}
                    spinSound={wheel.spinSound}
+                   backgroundImage={wheel.backgroundImage}
                    initialRotation={rotation} />
             <div style={{flexDirection: 'row'}}>
                 <Button variant={'primary'}

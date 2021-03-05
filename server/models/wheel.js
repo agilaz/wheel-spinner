@@ -12,6 +12,7 @@ const Wheel = new Schema(
             hidden: Boolean
         }],
         title: {type: String, required: true, unique: true},
+        backgroundImage: {type: String},
         spinSound: {type: String},
         winSound: {type: String},
         minSpins: {type: Number},

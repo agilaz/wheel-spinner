@@ -150,7 +150,7 @@ const AdminPage = ({match}) => {
         updateWheel(newWheel);
         let futureWheel;
         let toRemove;
-        if (wheel.isRemoveOnSpin && newWedges.length > 1) {
+        if (wheel.isRemoveOnSpin) {
             toRemove = {index: winnerIndex, duration: 1000};
             setToRemove(toRemove);
             const futureWedges = [...newWedges];
@@ -229,6 +229,7 @@ const AdminPage = ({match}) => {
                    toRemove={toRemove}
                    onRemoveEnd={finishRemove}
                    spinSound={wheel.spinSound}
+                   backgroundImage={wheel.backgroundImage}
                    initialRotation={rotation} />
             <div style={{flexDirection: 'row'}}>
                 <Button variant={'primary'}
