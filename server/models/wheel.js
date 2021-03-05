@@ -17,7 +17,8 @@ const Wheel = new Schema(
         minSpins: {type: Number},
         maxSpins: {type: Number},
         minSpinDurationMillis: {type: Number},
-        maxSpinDurationMillis: {type: Number}
+        maxSpinDurationMillis: {type: Number},
+        isRemoveOnSpin: {type: Boolean}
     }
 );
 

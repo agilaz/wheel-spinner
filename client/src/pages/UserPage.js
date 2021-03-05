@@ -27,6 +27,9 @@ const UserPage = ({match}) => {
     const [wheel, setWheel] = useState(null);
     const [winner, setWinner] = useState(null);
     const [showWinner, setShowWinner] = useState(false);
+    const [toRemove, setToRemove] = useState(null);
+    let onRemoveEnd = () => {
+    };
 
     // On page load, start socket; on deload, disconnect it
     useEffect(() => {
@@ -37,15 +40,28 @@ const UserPage = ({match}) => {
         socket.emit(REQUEST_SPINNABLE, {room: match.params.id});
 
         // Listen for admin provided events
-        socket.on(DO_SPIN, (spin) => setSpin(spin));
+        socket.on(DO_SPIN, ({wheel, spin}) => {
+            setWheel(wheel);
+            setSpin(spin);
+        });
 
         socket.on(SYNC_WHEEL_ROTATION, (rotation) => setRotation(rotation));
 
         socket.on(SYNC_WHEEL, (wheel) => setWheel(wheel));
 
-        socket.on(ANNOUNCE_WINNER, (winner) => {
+        socket.on(ANNOUNCE_WINNER, ({winner, toRemove, futureWheel}) => {
             setWinner(winner);
             setShowWinner(true);
+            if (!toRemove) {
+                setWheel(futureWheel);
+            } else {
+                setToRemove(toRemove);
+                onRemoveEnd = () => {
+                    console.log(toRemove, futureWheel);
+                    setToRemove(null);
+                    setWheel(futureWheel);
+                }
+            }
         });
 
         socket.on(ANNOUNCE_SPINNABLE, (spinnable) => setSpinnable(spinnable));
@@ -94,11 +110,13 @@ const UserPage = ({match}) => {
                    wedges={wheel.wedges}
                    onSpinEnd={handleSpinEnd}
                    spin={spin}
+                   toRemove={toRemove}
+                   onRemoveEnd={onRemoveEnd}
                    spinSound={wheel.spinSound}
                    initialRotation={rotation} />
             <div style={{flexDirection: 'row'}}>
                 <Button variant={'primary'}
-                        disabled={!!spin || !isSpinnable}
+                        disabled={!!spin || !isSpinnable || !!toRemove}
                         onClick={() => requestSpin()}>
                     Spin
                 </Button>

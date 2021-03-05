@@ -15,6 +15,7 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
     const [maxSpins, setMaxSpins] = useState((initialState && initialState.maxSpins) || '');
     const [minSpinDurationMillis, setMinSpinDurationMillis] = useState((initialState && initialState.minSpinDurationMillis) || '');
     const [maxSpinDurationMillis, setMaxSpinDurationMillis] = useState((initialState && initialState.maxSpinDurationMillis) || '');
+    const [isRemoveOnSpin, setRemoveOnSpin] = useState((initialState && initialState.isRemoveOnSpin) || false);
 
     // Refresh state if the initialState/includePassword props update
     useEffect(() => {
@@ -27,6 +28,11 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
             setTitle(initialState.title || '');
             setSpinSound(initialState.spinSound || '');
             setWinSound(initialState.winSound || '');
+            setMaxSpins(initialState.maxSpins || '');
+            setMinSpins(initialState.minSpins || '');
+            setMinSpinDurationMillis(initialState.minSpinDurationMillis || '')
+            setMaxSpinDurationMillis(initialState.maxSpinDurationMillis || '')
+            setRemoveOnSpin(initialState.isRemoveOnSpin || false);
         }
     }, [includePassword, initialState]);
 
@@ -51,7 +57,8 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
             minSpins,
             maxSpins,
             minSpinDurationMillis,
-            maxSpinDurationMillis
+            maxSpinDurationMillis,
+            isRemoveOnSpin
         };
 
         if (includePassword) {
@@ -92,6 +99,9 @@ const WheelForm = ({initialState, includePassword, modalTitle, show, handleClose
                     <Form.Label>Max Spin Duration Millis</Form.Label>
                     <Form.Control value={maxSpinDurationMillis} type={'number'}
                                   onChange={(evt) => setMaxSpinDurationMillis(evt.target.value === '' ? '' : Number(evt.target.value))} />
+                    <Form.Check checked={isRemoveOnSpin}
+                                label="Remove Wedge on Spin"
+                                onChange={(evt) => setRemoveOnSpin(evt.target.checked)} />
                     <b>Options</b>
                     <hr />
                     {wedges.map((wedge, i) =>

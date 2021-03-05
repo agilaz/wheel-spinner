@@ -33,6 +33,7 @@ const AdminPage = ({match}) => {
     const [showEdit, setShowEdit] = useState(false);
     const [showCopyToast, setShowCopyToast] = useState(false);
     const [showWinner, setShowWinner] = useState(false);
+    const [toRemove, setToRemove] = useState(null);
 
 
     // If url changes, reload the wedges
@@ -92,17 +93,25 @@ const AdminPage = ({match}) => {
         const spinsRemaining = (allowedSpins > 0) ? allowedSpins - 1 : allowedSpins;
         changeAllowedSpins(spinsRemaining);
         // Send out spin and update internal state as well
-        socket.emit(DO_SPIN, {room: match.params.id, spin});
+        socket.emit(DO_SPIN, {room: match.params.id, wheel, spin});
         setSpin(spin);
     }
 
-    // Update users and db with wheel changes
-    const updateWheel = (newWheel) => {
-        socket.emit(SYNC_WHEEL, {room: match.params.id, wheel: newWheel});
+    const updateWheelApi = (newWheel) => {
         API.updateWheel(match.params.id, password, newWheel)
             .then(resp => resp.data)
             .then(data => setWheel(data))
             .catch((err) => setError(getErrorMessage(err)));
+    }
+
+    const emitWheelUpdate = (newWheel) => {
+        socket.emit(SYNC_WHEEL, {room: match.params.id, wheel: newWheel});
+    }
+
+    // Update users and db with wheel changes
+    const updateWheel = (newWheel) => {
+        emitWheelUpdate(newWheel);
+        updateWheelApi(newWheel);
     }
 
     // Ask server to verify password
@@ -113,6 +122,18 @@ const AdminPage = ({match}) => {
             .catch((err) => setError(getErrorMessage(err)));
     };
 
+    const finishRemove = () => {
+        const removed = toRemove.index;
+        const newWedges = [...wheel.wedges];
+
+        newWedges.splice(removed, 1);
+
+        const newWheel = {...wheel, wedges: newWedges};
+        setWheel(newWheel);
+        setToRemove(null);
+        updateWheelApi(newWheel);
+    }
+
     // On spin end, unhide the winner and update state/back end
     const handleSpinEnd = (winnerIndex, rotation) => {
         setSpin(null);
@@ -120,12 +141,34 @@ const AdminPage = ({match}) => {
         setWinner(wheel.wedges[winnerIndex]);
         setShowWinner(true);
         const newWedges = [...wheel.wedges];
+        const winner = newWedges[winnerIndex];
+
         newWedges[winnerIndex] = {...newWedges[winnerIndex], hidden: false};
+
         const newWheel = {...wheel, wedges: newWedges};
-        setWheel(newWheel)
+        setWheel(newWheel);
         updateWheel(newWheel);
+        let futureWheel;
+        let toRemove;
+        if (wheel.isRemoveOnSpin && newWedges.length > 1) {
+            toRemove = {index: winnerIndex, duration: 1000};
+            setToRemove(toRemove);
+            const futureWedges = [...newWedges];
+            futureWedges.splice(winnerIndex, 1);
+            futureWheel = {...wheel, wedges: futureWedges};
+        } else {
+            futureWheel = newWheel;
+            toRemove = null;
+        }
+
+        const payload = {
+            winner: winner,
+            futureWheel: futureWheel,
+            toRemove: toRemove
+        };
+
         socket.emit(SYNC_WHEEL_ROTATION, {room: match.params.id, rotation});
-        socket.emit(ANNOUNCE_WINNER, {room: match.params.id, winner: newWedges[winnerIndex]});
+        socket.emit(ANNOUNCE_WINNER, {room: match.params.id, ...payload});
     };
 
     const hideAllWedges = () => {
@@ -174,6 +217,7 @@ const AdminPage = ({match}) => {
         );
     }
 
+    const isButtonBlocked = !!spin || !!toRemove;
     // Loaded view - show wheel and controls
     return (
         <div className="App">
@@ -182,16 +226,18 @@ const AdminPage = ({match}) => {
                    wedges={wheel.wedges}
                    onSpinEnd={handleSpinEnd}
                    spin={spin}
+                   toRemove={toRemove}
+                   onRemoveEnd={finishRemove}
                    spinSound={wheel.spinSound}
                    initialRotation={rotation} />
             <div style={{flexDirection: 'row'}}>
                 <Button variant={'primary'}
-                        disabled={!!spin}
+                        disabled={isButtonBlocked}
                         onClick={startSpin}>
                     Spin
                 </Button>
                 <Button variant={'warning'}
-                        disabled={!!spin}
+                        disabled={isButtonBlocked}
                         onClick={hideAllWedges}>
                     Hide All
                 </Button>
