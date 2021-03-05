@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 // Thanks https://stackoverflow.com/questions/47686345/playing-sound-in-reactjs
 
 const useAudio = url => {
-    const [audio] = useState(new Audio(url));
+    const [audio, setAudio] = useState(new Audio(url));
     const [playing, setPlaying] = useState(false);
 
     const toggle = () => setPlaying(!playing);
@@ -26,7 +26,15 @@ const useAudio = url => {
         return () => {
             audio.removeEventListener('ended', () => setPlaying(false));
         };
-    }, []);
+    }, [audio]);
+
+    useEffect(() => {
+        if (audio.src !== url) {
+            setPlaying(false);
+
+            setAudio(new Audio(url));
+        }
+    }, [url])
 
     return [playing, toggle, play, stop];
 };
