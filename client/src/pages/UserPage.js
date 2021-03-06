@@ -122,7 +122,7 @@ const UserPage = ({match}) => {
                    initialRotation={rotation} />
             <div style={{flexDirection: 'row'}}>
                 <Button variant={'primary'}
-                        disabled={!!spin || !isSpinnable || !!toRemove}
+                        disabled={!!spin || !isSpinnable || !!toRemove || !wheel.wedges.length}
                         onClick={() => requestSpin()}>
                     Spin
                 </Button>

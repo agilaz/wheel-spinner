@@ -217,7 +217,7 @@ const AdminPage = ({match}) => {
         );
     }
 
-    const isButtonBlocked = !!spin || !!toRemove;
+    const isButtonBlocked = !!spin || !!toRemove || !wheel.wedges.length;
     // Loaded view - show wheel and controls
     return (
         <div className="App">
