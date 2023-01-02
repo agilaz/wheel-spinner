@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Modal } from 'react-bootstrap';
+import React, {useEffect} from 'react';
+import {Modal} from 'react-bootstrap';
 import useAudio from '../util/useAudio';
 
 const WinModal = ({show, handleClose, title, description, winSound}) => {
@@ -22,11 +22,13 @@ const WinModal = ({show, handleClose, title, description, winSound}) => {
                     {title}
                 </Modal.Title>
             </Modal.Header>
+            {!!description &&
             <Modal.Body>
                 <p>
                     {description}
                 </p>
             </Modal.Body>
+            }
         </Modal>
     );
 };
