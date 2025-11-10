@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "engines": {
-    "node": "14.x"
+    "node": "22.x"
   },
   "scripts": {
     "start": "node server",
@@ -15,10 +15,10 @@
     "react-ui/node_modules"
   ],
   "dependencies": {
-    "bcrypt": "^5.0.0",
-    "express": "^4.16.4",
-    "mongoose": "^5.11.8",
-    "socket.io": "^3.0.4"
+    "bcrypt": "^6.0.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.19.3",
+    "socket.io": "^4.8.1"
   },
   "repository": {
     "type": "git",

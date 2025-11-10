@@ -2,7 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import path from 'path';
 import http from 'http';
-import { Server } from 'socket.io';
+import {Server} from 'socket.io';
 import wheelRouter from './routes/wheelRouter.js';
 
 const DEV_PORT = 3001;
@@ -46,12 +46,14 @@ const SYNC_WHEEL_ROTATION = 'admin-sync-rotation';
 const SYNC_WHEEL = 'admin-sync-wheel';
 const ANNOUNCE_WINNER = 'admin-send-winner';
 const ANNOUNCE_SPINNABLE = 'admin-send-spinnable';
+const SEND_PONG = 'admin-send-pong';
 
 // User emitted events
 const USER_ROOM = 'user-room';
 const REQUEST_SPIN = 'user-request-spin';
 const REQUEST_ROTATION_SYNC = 'user-request-rotation';
 const REQUEST_SPINNABLE = 'user-request-spinnable';
+const REQUEST_PING = 'user-request-ping';
 
 const adminRoom = (room) => `${room}-admin`;
 
@@ -94,6 +96,11 @@ io.on('connection', (socket) => {
         socket.to(room).emit(ANNOUNCE_WINNER, {winner, toRemove, futureWheel});
     });
 
+    socket.on(SEND_PONG, ({room, userId}) => {
+        const broadcastTo = userId || room;
+        socket.to(broadcastTo).emit(SEND_PONG, {msg: 'pong'});
+    });
+
     // User emitted events
     socket.on(REQUEST_SPIN, ({room}) => {
         socket.to(adminRoom(room)).emit(REQUEST_SPIN);
@@ -105,5 +112,9 @@ io.on('connection', (socket) => {
 
     socket.on(REQUEST_SPINNABLE, ({room}) => {
         socket.to(adminRoom(room)).emit(REQUEST_SPINNABLE, {userId: socket.id});
+    });
+
+    socket.on(REQUEST_PING, ({room}) => {
+        socket.to(adminRoom(room)).emit(REQUEST_PING, {userId: socket.id});
     });
 });
