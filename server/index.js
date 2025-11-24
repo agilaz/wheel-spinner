@@ -25,7 +25,7 @@ app.use(express.static(path.resolve(__dirname, './client/build')));
 
 app.use('/api', wheelRouter);
 
-app.get('*', function(request, response) {
+app.use(function(request, response) {
     response.sendFile(path.resolve(__dirname, './client/build', 'index.html'));
 });
 
